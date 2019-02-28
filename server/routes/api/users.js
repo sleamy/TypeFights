@@ -60,7 +60,7 @@ router.post('/register', (req, res) => {
                                     knex('fighter')
                                         .returning('*')
                                         .insert(newUser)
-                                        .then(user => res.json(user))
+                                        .then(user => res.json(user[0]))
                                         .catch(err => console.log(err))
                                 })
                             })
