@@ -21,6 +21,7 @@ class Navbar extends Component {
             <li className="nav-item">
                 <a href="" className="nav-link">
                     <img src={defaultImage}
+                        alt="user profile"
                         className="rounded-circle"
                         style={{ width: '25px', marginRight: '5px'}}/>
                 {user.username}</a>
@@ -70,8 +71,8 @@ class Navbar extends Component {
               <div className="collapse navbar-collapse" id="mobile-nav">
                 <ul className="navbar-nav mr-auto">
                   <li className="nav-item">
-                    <Link className="nav-link" to="/profiles">
-                      Something
+                    <Link className="nav-link" to="/fight">
+                      Fight
                     </Link>
                   </li>
                 </ul>

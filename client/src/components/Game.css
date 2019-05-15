@@ -1,0 +1,74 @@
+#health {
+    width: 700px;
+    height: 30px;
+    margin: 10px;
+    padding: 0;
+}
+
+#playerHealth {
+    background-color: green;
+    height: 30px;
+    width: 50%;
+    float: left;
+}
+
+#enemyHealth {
+    background-color: red;
+    height: 100%;
+    width: 50%;
+    margin-left: 50%;
+}
+
+#playerOne {
+    width: 50%;
+    float: left;
+}
+
+#playerTwo {
+    width: 50%;
+    margin-left: 50%;
+    text-align: right;
+}
+
+#wordsToType {
+    border: 1px solid black;
+    width: 700px;
+    height: 85px;
+    font-size: 24px;
+    display: block;
+    overflow: hidden;
+    margin-top: 5px;
+    padding: 5px;
+    user-select: none;
+}
+
+#wordInput {
+    text-align: center;
+    width: 700px;
+    margin-top: 10px;
+}
+
+.word {
+    float: left;
+    padding-left: 3px;
+    padding-right: 3px;
+}
+
+.currentWord {
+    background: #ccc7c7;
+    border-radius: 3px;
+}
+
+.correct {
+    color: green;
+}
+
+.incorrect {
+    color: red;
+}
+
+.icon {
+    height: 20px;
+    width: 20px;
+    vertical-align: middle;
+}

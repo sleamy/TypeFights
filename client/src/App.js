@@ -12,6 +12,7 @@ import Navbar from './components/Navbar'
 import Home from './components/Home'
 import Register from './components/auth/Register'
 import Login from './components/auth/Login'
+import Game from './components/Game'
 
 // Check for token
 if(localStorage.fighterToken) {
@@ -34,6 +35,7 @@ if(localStorage.fighterToken) {
 }
 
 class App extends Component {
+    
     render() {
         return (
             <Provider store={store}>
@@ -44,6 +46,7 @@ class App extends Component {
                         <div className="container">
                             <Route exact path="/register" component={Register} />
                             <Route exact path="/login" component={Login} />
+                            <Route exact path="/fight" component={Game}/>
                         </div>
                     </div>
                 </Router>
