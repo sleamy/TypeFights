@@ -1,4 +1,6 @@
 import React, { Component } from 'react'
+import { connect } from 'react-redux'
+import PropTypes from 'prop-types'
 import io from 'socket.io-client'
 import trophy from '../images/trophy.png'
 import './Game.css'
@@ -14,17 +16,13 @@ class Game extends Component {
             currentWord: 'Sean',
             wordsTyped: 0,
             input: '',
+            socket: null
         }
     }
 
     componentDidMount() {
-        const socket = io('http://localhost:5000');
 
-        this.populateWordList()
-    }
-
-    populateWordList() {
-
+        this.setState({socket: io('http://localhost:5000')})
     }
 
     onChange = (e) => {
@@ -53,6 +51,8 @@ class Game extends Component {
 
     render() {
 
+        const { isAuthenticated, user } = this.props.auth;
+
         const wordEls = []
 
         for (let i = 0; i < this.state.words.length; i++) {
@@ -77,11 +77,11 @@ class Game extends Component {
                     <div id="playerInfo" className="col-md-8">
                         <div id="playerOne">
                             <div className="row justify-content-start">
-                                <h5 id="playerOneName">Sleamy</h5>
+                                <h5 id="playerOneName">{user.username}</h5>
                             </div>
                             <div className="row justify-content-start">
                                 <img className="icon" alt="trophy" src={trophy} />
-                                <h6 id="playerOneRating">1000</h6>
+                                <h6 id="playerOneRating">{user.rating}</h6>
                             </div>
                         </div>
                         <div id="playerTwo">
@@ -113,4 +113,13 @@ class Game extends Component {
     }
 }
 
-export default Game;
+
+Game.propTypes = {
+    auth: PropTypes.object.isRequired
+}
+
+const mapStateToProps = (state) => ({
+    auth: state.auth,
+})
+
+export default connect(mapStateToProps)(Game)

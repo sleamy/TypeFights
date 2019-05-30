@@ -103,9 +103,13 @@ router.post('/login', (req, res) => {
                         const payload = {
                             id: user.id,
                             username: user.username,
-                            email: user.email
-
+                            email: user.email,
+                            fights: user.fights,
+                            wins: user.wins,
+                            losses: user.losses,
+                            rating: user.rating
                         }
+                        
                         // Sign token
                         jwt.sign(payload, keys.secretOrKey, { expiresIn: 604800 }, (err, token) => {
                             res.json({

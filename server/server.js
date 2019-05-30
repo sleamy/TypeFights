@@ -6,6 +6,9 @@ const socketIO = require('socket.io')
 
 const users = require('./routes/api/users')
 
+const Room = require('./game/room')
+const Player = require('./game/player')
+
 const app = express()
 const server = http.Server(app)
 const io = socketIO(server)
@@ -28,8 +31,20 @@ app.get('/', (req, res) => {
 
 server.listen(PORT, () => console.log(`Server running on port ${PORT}`))
 
+let rooms = {}
+let roomCount = 1
+
+let room = new Room('Genesis')
+rooms[room.id] = room
+
 io.on('connection', (socket) => {
     console.log('User connected: ' + socket.id)
+
+    socket.on('playerConnected', (user) => {
+        console.log(user)
+    })
+
+    socket.on('test', () => console.log('Message recieved'))
 
     socket.on('disconnect', () => console.log('User disconnected'))
 })
