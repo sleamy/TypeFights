@@ -10,19 +10,22 @@ class Game extends Component {
     constructor(props) {
         super(props)
 
+        this.selector = React.createRef()
+
         this.state = {
             words: ['Sean', 'Leamy', 'is', 'typing', 'Sean', 'Leamy', 'is', 'typing', 'Sean', 'Leamy', 'is', 'typing', 'Sean', 'Leamy', 'is', 'typing', 'Sean', 'Leamy', 'is', 'typing', 'Sean', 'Leamy', 'is', 'typing', 'Sean', 'Leamy', 'is', 'typing', 'Sean', 'Leamy', 'is', 'typing', 'Sean', 'Leamy', 'is', 'typing', 'Sean', 'Leamy', 'is', 'typing', 'Sean', 'Leamy', 'is', 'typing', 'Sean', 'Leamy', 'is', 'typing', 'Sean', 'Leamy', 'is', 'typing', 'Sean', 'Leamy', 'is', 'typing', 'Sean', 'Leamy', 'is', 'typing', 'Sean', 'Leamy', 'is', 'typing',],
             wordsCorrect: [],
             currentWord: 'Sean',
             wordsTyped: 0,
+            topHeight: 0,
+            wordsHidden: 0,
             input: '',
             socket: null
         }
     }
 
     componentDidMount() {
-
-        this.setState({socket: io('http://localhost:5000')})
+        this.setState({ socket: io('http://localhost:5000') })
     }
 
     onChange = (e) => {
@@ -45,8 +48,20 @@ class Game extends Component {
         this.setState((state, props) => ({
             input: '',
             wordsTyped: state.wordsTyped + 1,
-            currentWord: state.words[state.wordsTyped + 1]
-        }))
+            currentWord: state.words[state.wordsTyped + 1],
+        }), () => {
+            let rect = this.selector.current.getBoundingClientRect()
+            if (rect.y !== this.state.topHeight) {
+                if(this.state.wordsTyped === 1) {
+                    this.setState({ topHeight: rect.y})
+                } else {
+                    this.setState({ wordsHidden: this.state.wordsTyped })
+                }
+                
+            }
+            console.log(rect.y)
+        })
+
     }
 
     render() {
@@ -58,16 +73,24 @@ class Game extends Component {
         for (let i = 0; i < this.state.words.length; i++) {
             if (i === this.state.wordsTyped) {
                 wordEls.push(
-                    <div key={"word_" + i} id={"word_" + i} className="word currentWord">
+                    <div key={"word_" + i} id={"word_" + i} ref={this.selector} className="word currentWord">
                         {this.state.words[i]}
                     </div>
                 )
             } else {
-                wordEls.push(
-                    <div key={"word_" + i} id={"word_" + i} className={"word " + this.state.wordsCorrect[i]}>
-                        {this.state.words[i]}
-                    </div>
-                )
+                if (i < this.state.wordsHidden) {
+                    wordEls.push(
+                        <div key={"word_" + i} id={"word_" + i} className={"word " + this.state.wordsCorrect[i]} hidden>
+                            {this.state.words[i]}
+                        </div>
+                    )
+                } else {
+                    wordEls.push(
+                        <div key={"word_" + i} id={"word_" + i} className={"word " + this.state.wordsCorrect[i]}>
+                            {this.state.words[i]}
+                        </div>
+                    )
+                }
             }
         }
 
