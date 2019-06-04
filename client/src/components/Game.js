@@ -20,12 +20,30 @@ class Game extends Component {
             topHeight: 0,
             wordsHidden: 0,
             input: '',
-            socket: null
+            socket: null,
+            opponent: {username: 'Opponent', rating: 1000},
+
         }
     }
 
     componentDidMount() {
-        this.setState({ socket: io('http://localhost:5000') })
+        this.setState({ socket: io('http://localhost:5000') }, () => {
+            this.state.socket.emit('playerConnected', this.props.auth.user)
+
+            this.state.socket.on('allConnected', (data) => {
+                console.log('All players connected to room')
+                console.log(data.room.players[0].user.username)
+                if(data.room.players[0].user.username === this.props.auth.user.username) {
+                    console.log(data.room.players[0])
+                    this.setState({opponent: data.room.players[1].user})
+                } else {
+                    console.log(data.room.players[1])
+                    this.setState({opponent: data.room.players[0].user})
+                }
+                this.setState({words: data.room.words})
+            })
+        })
+
     }
 
     onChange = (e) => {
@@ -52,14 +70,13 @@ class Game extends Component {
         }), () => {
             let rect = this.selector.current.getBoundingClientRect()
             if (rect.y !== this.state.topHeight) {
-                if(this.state.wordsTyped === 1) {
-                    this.setState({ topHeight: rect.y})
+                if (this.state.wordsTyped === 1) {
+                    this.setState({ topHeight: rect.y })
                 } else {
                     this.setState({ wordsHidden: this.state.wordsTyped })
                 }
-                
+
             }
-            console.log(rect.y)
         })
 
     }
@@ -109,10 +126,10 @@ class Game extends Component {
                         </div>
                         <div id="playerTwo">
                             <div className="row justify-content-end">
-                                <h5 id="playerTwoName">Opponent</h5>
+                                <h5 id="playerTwoName">{this.state.opponent.username}</h5>
                             </div>
                             <div className="row justify-content-end">
-                                <h6 id="playerTwoRating">0</h6>
+                                <h6 id="playerTwoRating">{this.state.opponent.rating}</h6>
                                 <img className="icon" alt="trophy" src={trophy} />
                             </div>
                         </div>

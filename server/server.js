@@ -38,10 +38,23 @@ let room = new Room('Genesis')
 rooms[room.id] = room
 
 io.on('connection', (socket) => {
+
     console.log('User connected: ' + socket.id)
 
     socket.on('playerConnected', (user) => {
         console.log(user)
+
+        let player = new Player(socket.id, room.id, user)
+        socket.join(room.id)
+        room.players.push(player)
+
+        if(room.players.length == 2) {
+            console.log(room.id + " is filled with players: " + room.players)
+            io.in(room.id).emit('allConnected', {room: rooms[room.id], players: rooms[room.id].player})
+
+            room = new Room('Room_' + roomCount++);
+            rooms[room.id] = room
+        }
     })
 
     socket.on('test', () => console.log('Message recieved'))
