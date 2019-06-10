@@ -25,7 +25,7 @@ class Game extends Component {
             room: {},
             playerNumber: 0,
             outcome: null,
-            opponent: { username: 'Opponent', rating: 1000 },
+            opponent: null,
 
         }
     }
@@ -102,7 +102,7 @@ class Game extends Component {
 
     render() {
 
-        const { isAuthenticated, user } = this.props.auth;
+        const {  user } = this.props.auth;
 
         const wordEls = []
 
@@ -158,9 +158,14 @@ class Game extends Component {
             gameOverEl = (<div>Loser</div>)
         }
 
+        let loadingEl = null
+        if(!this.state.opponent) {
+            loadingEl = (<div>Loading</div>)
+        }        
 
         return (
             <div className="container">
+                {loadingEl}
                 <span>{this.state.playerNumber}</span>
                 <div className="row justify-content-md-center">
                     <div id="playerInfo" className="col-md-8">
@@ -175,10 +180,10 @@ class Game extends Component {
                         </div>
                         <div id="playerTwo">
                             <div className="row justify-content-end">
-                                <h5 id="playerTwoName">{this.state.opponent.username}</h5>
+                                <h5 id="playerTwoName">{this.state.opponent ? this.state.opponent.username : 'Opponent'}</h5>
                             </div>
                             <div className="row justify-content-end">
-                                <h6 id="playerTwoRating">{this.state.opponent.rating}</h6>
+                                <h6 id="playerTwoRating">{this.state.opponent ? this.state.opponent.rating : 1000}</h6>
                                 <img className="icon" alt="trophy" src={trophy} />
                             </div>
                         </div>
