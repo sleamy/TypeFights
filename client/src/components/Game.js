@@ -10,37 +10,48 @@ class Game extends Component {
     constructor(props) {
         super(props)
 
-        this.selector = React.createRef()
+        this.selector = React.createRef() // ref for current word element
 
         this.state = {
-            words: ['Sean', 'Leamy', 'is', 'typing', 'Sean', 'Leamy', 'is', 'typing', 'Sean', 'Leamy', 'is', 'typing', 'Sean', 'Leamy', 'is', 'typing', 'Sean', 'Leamy', 'is', 'typing', 'Sean', 'Leamy', 'is', 'typing', 'Sean', 'Leamy', 'is', 'typing', 'Sean', 'Leamy', 'is', 'typing', 'Sean', 'Leamy', 'is', 'typing', 'Sean', 'Leamy', 'is', 'typing', 'Sean', 'Leamy', 'is', 'typing', 'Sean', 'Leamy', 'is', 'typing', 'Sean', 'Leamy', 'is', 'typing', 'Sean', 'Leamy', 'is', 'typing', 'Sean', 'Leamy', 'is', 'typing', 'Sean', 'Leamy', 'is', 'typing',],
+            words: [],
             wordsCorrect: [],
-            currentWord: 'Sean',
+            currentWord: '',
             wordsTyped: 0,
             topHeight: 0,
             wordsHidden: 0,
             input: '',
             socket: null,
-            opponent: {username: 'Opponent', rating: 1000},
+            roomName: '',
+            room: {},
+            playerNumber: 0,
+            outcome: null,
+            opponent: { username: 'Opponent', rating: 1000 },
 
         }
     }
 
     componentDidMount() {
+
+        // Socket.io
         this.setState({ socket: io('http://localhost:5000') }, () => {
             this.state.socket.emit('playerConnected', this.props.auth.user)
 
             this.state.socket.on('allConnected', (data) => {
                 console.log('All players connected to room')
-                console.log(data.room.players[0].user.username)
-                if(data.room.players[0].user.username === this.props.auth.user.username) {
-                    console.log(data.room.players[0])
-                    this.setState({opponent: data.room.players[1].user})
-                } else {
-                    console.log(data.room.players[1])
-                    this.setState({opponent: data.room.players[0].user})
-                }
-                this.setState({words: data.room.words})
+                console.log(data.room)
+                this.setState({ room: data.room, words: data.room.words, currentWord: data.room.words[0] }, () => {
+                    if (this.state.socket.id === data.room.players[0].id) {
+                        console.log(data.room.players)
+                        this.setState({ playerNumber: 0, opponent: data.room.players[1].user })
+                    } else {
+                        this.setState({ playerNumber: 1, opponent: data.room.players[0].user })
+                    }
+                })
+            })
+
+            this.state.socket.on('updateRoom', data => {
+                this.setState({ room: data.room }, () => {
+                })
             })
         })
 
@@ -57,11 +68,19 @@ class Game extends Component {
 
     submitTyped(word) {
 
+        // Check if word typed is the same as the current word
         if (word === this.state.currentWord) {
-            this.setState({ wordsCorrect: [...this.state.wordsCorrect, 'correct'] })
+            // Correct
+            this.setState({
+                wordsCorrect: [...this.state.wordsCorrect, 'correct'],
+                health: this.state.health + word.length > 100 ? 100 : this.state.health + word.length
+            })
         } else {
+            // Incorrect
             this.setState({ wordsCorrect: [...this.state.wordsCorrect, 'incorrect'] })
         }
+
+        this.state.socket.emit('wordTyped', ({ playerId: this.state.socket.id, roomName: this.state.room.id, typed: word, wordToType: this.state.currentWord }))
 
         this.setState((state, props) => ({
             input: '',
@@ -111,8 +130,38 @@ class Game extends Component {
             }
         }
 
+        // TODO: Create Health Element
+        const healthEl = []
+
+        if (this.state.playerNumber === 0) {
+            healthEl.push(
+                <div key="health" id="health" className="col-md-8">
+                    <div id="enemyHealth" ></div>
+                    <div id="playerHealth" style={{ width: `${this.state.room.health + 50}%` }}></div>
+                </div>
+            )
+        } else {
+            healthEl.push(
+                <div key="health" id="health" className="col-md-8">
+                    <div id="enemyHealth" ></div>
+                    <div id="playerHealth" style={{ width: `${-this.state.room.health + 50}%` }}></div>
+                </div>
+            )
+        }
+
+        let gameOverEl = null
+
+        if((this.state.room.ended && this.state.playerNumber === 0 && this.state.room.health >= 50) ||
+            (this.state.room.ended && this.state.playerNumber === 1 && this.state.room.health <= -50)) {
+            gameOverEl = (<div>Winner</div>)
+        } else if(this.state.room.ended) {
+            gameOverEl = (<div>Loser</div>)
+        }
+
+
         return (
             <div className="container">
+                <span>{this.state.playerNumber}</span>
                 <div className="row justify-content-md-center">
                     <div id="playerInfo" className="col-md-8">
                         <div id="playerOne">
@@ -136,10 +185,7 @@ class Game extends Component {
                     </div>
                 </div>
                 <div className="row justify-content-md-center">
-                    <div id="health" className="col-md-8">
-                        <div id="playerHealth"></div>
-                        <div id="enemyHealth"></div>
-                    </div>
+                    {healthEl}
                 </div>
                 <div className="row justify-content-md-center">
                     <div id="wordsToType" className="col-md-8">
@@ -148,6 +194,7 @@ class Game extends Component {
                 <div className="row justify-content-md-center">
                     <input id="wordInput" className="col-md-8" type="text" name="input" onChange={this.onChange} value={this.state.input} />
                 </div>
+                {gameOverEl}
             </div>
         )
     }

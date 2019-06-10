@@ -15,7 +15,7 @@ const io = socketIO(server)
 
 const PORT = process.env.PORT || 5000
 
-app.use(bodyParser.urlencoded({extended: false}))
+app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json())
 
 app.use(passport.initialize())
@@ -42,22 +42,46 @@ io.on('connection', (socket) => {
     console.log('User connected: ' + socket.id)
 
     socket.on('playerConnected', (user) => {
-        console.log(user)
 
         let player = new Player(socket.id, room.id, user)
         socket.join(room.id)
         room.players.push(player)
 
-        if(room.players.length == 2) {
-            console.log(room.id + " is filled with players: " + room.players)
-            io.in(room.id).emit('allConnected', {room: rooms[room.id], players: rooms[room.id].player})
+        if (room.players.length == 2) {
+            io.in(room.id).emit('allConnected', { room: rooms[room.id], players: rooms[room.id].player })
 
             room = new Room('Room_' + roomCount++);
             rooms[room.id] = room
         }
     })
 
-    socket.on('test', () => console.log('Message recieved'))
+    socket.on('wordTyped', data => {
+
+        console.log(data)
+
+        if (data.typed === data.wordToType) {
+            
+            if(data.playerId === rooms[data.roomName].players[0].id) {
+                // Player 1 stuff
+                rooms[data.roomName].health += data.wordToType.length
+                if(rooms[data.roomName].health > 50) {
+                    rooms[data.roomName].health = 50
+                    rooms[data.roomName].ended = true
+                }
+
+            } else {
+                // Player 2 stuff
+                console.log('Player 2 typed a word')
+                rooms[data.roomName].health -= data.wordToType.length
+                if(rooms[data.roomName].health < -50) {
+                    rooms[data.roomName].health = -50
+                    rooms[data.roomName].ended = true
+                }
+            }
+
+            io.in(data.roomName).emit('updateRoom', {room: rooms[data.roomName]})
+        }
+    })
 
     socket.on('disconnect', () => console.log('User disconnected'))
 })

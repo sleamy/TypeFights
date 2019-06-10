@@ -8,14 +8,16 @@
 #playerHealth {
     background-color: green;
     height: 30px;
-    width: 50%;
     float: left;
 }
 
 #enemyHealth {
+    position: absolute;
+    left: -50%;
+    z-index: -1;
     background-color: red;
-    height: 100%;
-    width: 50%;
+    height: 30px;
+    width: 100%;
     margin-left: 50%;
 }
 
