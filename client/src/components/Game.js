@@ -135,12 +135,10 @@ class Game extends Component {
             }
         }
 
-        let currentView = null;
-
         if (this.state.searching) {
             return (<FindingOpponent searching={this.state.searching} />)
         } else if (this.state.room.ended) {
-            return (<GameOver playerNumber={this.state.playerNumber} ended={this.state.room.ended} health={this.state.room.health} />)
+            return (<GameOver players={this.state.room.players} winner={this.state.room.winner} />)
         } else {
 
             return (

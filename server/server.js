@@ -67,6 +67,7 @@ io.on('connection', (socket) => {
                 if(rooms[data.roomName].health > 50) {
                     rooms[data.roomName].health = 50
                     rooms[data.roomName].ended = true
+                    rooms[data.roomName].winner = 0
                 }
 
             } else {
@@ -76,6 +77,7 @@ io.on('connection', (socket) => {
                 if(rooms[data.roomName].health < -50) {
                     rooms[data.roomName].health = -50
                     rooms[data.roomName].ended = true
+                    rooms[data.roomName].winner = 1
                 }
             }
 
