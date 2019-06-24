@@ -9,8 +9,9 @@ class Room {
         this.health = 0;
         this.goal = 50;
         this.ended = false;
-        this.winner = {};
+        this.winner = -1;
         this.words = this.initWords();
+        this.countdown = 5;
     }
 
     initWords() {

@@ -14,6 +14,7 @@ class Game extends Component {
         super(props)
 
         this.selector = React.createRef() // ref for current word element
+        this.input = React.createRef() // ref for input
 
         this.state = {
             words: [],
@@ -27,9 +28,10 @@ class Game extends Component {
             roomName: '',
             room: {},
             playerNumber: 0,
-            outcome: null,
+            player: {},
             opponent: null,
-            searching: true
+            searching: true,
+            countdown: 0
         }
     }
 
@@ -44,20 +46,48 @@ class Game extends Component {
                 console.log(data.room)
                 this.setState({ room: data.room, words: data.room.words, currentWord: data.room.words[0], searching: false }, () => {
                     if (this.state.socket.id === data.room.players[0].id) {
-                        console.log(data.room.players)
-                        this.setState({ playerNumber: 0, opponent: data.room.players[1].user })
-                    } else {
-                        this.setState({ playerNumber: 1, opponent: data.room.players[0].user })
+                        console.log(data.room.players[0])
+                        this.setState({ playerNumber: 0, opponent: data.room.players[1].user, player: data.room.players[0].user})
+                    } else if(this.state.socket.id === data.room.players[1].id) {
+                        console.log(data.room.players[1])
+                        this.setState({ playerNumber: 1, opponent: data.room.players[0].user, player: data.room.players[1].user })
                     }
+                    
+                    this.timer = setInterval(
+                        () => this.tick(),
+                        1000
+                      );
+                    
                 })
             })
 
             this.state.socket.on('updateRoom', data => {
                 this.setState({ room: data.room }, () => {
+                    if(data.room.ended) {
+                        this.gameOver()
+                    }
                 })
+            })
+
+            this.state.socket.on('rematch', data => {
+                console.log('Opponent wants to rematch')
             })
         })
 
+    }
+
+    gameOver() {
+
+    }
+
+    tick() {
+        console.log(this.state.countdown)
+        this.setState({countdown: this.state.countdown - 1}, () => {
+            if(this.state.countdown < 0) {
+                clearInterval(this.timer)
+                this.input.current.focus()
+            }
+        })
     }
 
     onChange = (e) => {
@@ -67,6 +97,11 @@ class Game extends Component {
                 this.submitTyped(this.state.input.trim())
             }
         })
+    }
+
+    handleRematch(e) {
+        e.preventDefault();
+        this.state.socket.emit('rematch', {room: this.state.room})
     }
 
     submitTyped(word) {
@@ -138,21 +173,21 @@ class Game extends Component {
         if (this.state.searching) {
             return (<FindingOpponent searching={this.state.searching} />)
         } else if (this.state.room.ended) {
-            return (<GameOver players={this.state.room.players} winner={this.state.room.winner} />)
+            return (<GameOver players={this.state.room.players} winner={this.state.room.winner} handleRematch={this.handleRematch.bind(this)} />)
         } else {
-
             return (
                 <div className="container">
-                    <span>{this.state.playerNumber}</span>
+                    <span>{this.state.playerNumber} : </span>
+                    <span>{this.state.socket.id}</span>
                     <div className="row justify-content-md-center">
                         <div id="playerInfo" className="col-md-8">
                             <div id="playerOne">
                                 <div className="row justify-content-start">
-                                    <h5 id="playerOneName">{user.username}</h5>
+                                    <h5 id="playerOneName">{this.state.player.username}</h5>
                                 </div>
                                 <div className="row justify-content-start">
                                     <img className="icon" alt="trophy" src={trophy} />
-                                    <h6 id="playerOneRating">{user.rating}</h6>
+                                    <h6 id="playerOneRating">{this.state.player.rating}</h6>
                                 </div>
                             </div>
                             <div id="playerTwo">
@@ -174,7 +209,7 @@ class Game extends Component {
                             {wordEls}</div>
                     </div>
                     <div className="row justify-content-md-center">
-                        <input id="wordInput" className="col-md-8" type="text" name="input" onChange={this.onChange} value={this.state.input} disabled={this.state.room.ended} />
+                        <input id="wordInput" className="col-md-8" type="text" name="input" ref={this.input} onChange={this.onChange} value={this.state.input} disabled={this.state.room.ended || this.state.countdown >= 0} />
                     </div>
                 </div>
             )
