@@ -1,6 +1,6 @@
 const knex = require('./knex')
 
-exports.updateAfterFight = function(email, newRating, fights, wins, losses) {
+exports.updateStats = function(email, newRating, fights, wins, losses) {
     console.log('Updating user elo')
 
     knex('fighter')
@@ -20,7 +20,7 @@ exports.getUserStats = function(email, cb) {
     knex('fighter')
         .select('*')
         .where({email: email})
-        .then(user => {
+        .then(user => { 
             user = user[0]
             cb({
                 fights: user.fights,

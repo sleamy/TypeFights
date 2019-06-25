@@ -7,6 +7,7 @@ const User = require('./db/user')
 
 const users = require('./routes/api/users')
 
+const Elo = require('./game/elo')
 const Room = require('./game/room')
 const Player = require('./game/player')
 
@@ -102,11 +103,22 @@ io.on('connection', (socket) => {
 
             // Game has ended
             if (rooms[data.roomName].ended) {
-                let winner = rooms[data.roomName].players[rooms[data.roomName].winner].user
-                let { email, fights, wins, losses } = winner
+                let winner, loser;
+
+                if (rooms[data.roomName].winner == 0) {
+                    winner = rooms[data.roomName].players[0].user
+                    loser = rooms[data.roomName].players[1].user
+                } else {
+                    winner = rooms[data.roomName].players[1].user
+                    loser = rooms[data.roomName].players[0].user
+                }
 
                 // TODO: Update elo
-                User.updateAfterFight(email, 1100, fights + 1, wins + 1, losses)
+                let winnerElo = Elo.getNewRating(winner.rating, loser.rating, 1)
+                let loserElo = Elo.getNewRating(loser.rating, winner.rating, 0)
+
+                User.updateStats(winner.email, winnerElo, winner.fights+1, winner.wins+1, winner.losses)
+                User.updateStats(loser.email, loserElo, loser.fights+1, loser.wins, loser.losses+1)
 
                 console.log(winner)
             }
