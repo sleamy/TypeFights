@@ -43,8 +43,6 @@ class Game extends Component {
             this.state.socket.emit('playerConnected', this.props.auth.user)
 
             this.state.socket.on('allConnected', (data) => {
-                console.log('All players connected to room')
-                console.log(data.room)
                 this.setState({
                     room: data.room,
                     words: data.room.words,
@@ -52,10 +50,8 @@ class Game extends Component {
                     searching: false,
                 }, () => {
                     if (this.state.socket.id === data.room.players[0].id) {
-                        console.log(data.room.players[0])
                         this.setState({ playerNumber: 0, opponent: data.room.players[1].user, player: data.room.players[0].user })
                     } else if (this.state.socket.id === data.room.players[1].id) {
-                        console.log(data.room.players[1])
                         this.setState({ playerNumber: 1, opponent: data.room.players[0].user, player: data.room.players[1].user })
                     }
 
@@ -69,14 +65,10 @@ class Game extends Component {
 
             this.state.socket.on('updateRoom', data => {
                 this.setState({ room: data.room }, () => {
-                    if (data.room.ended) {
-                        this.gameOver()
-                    }
                 })
             })
 
             this.state.socket.on('opponentRematch', data => {
-                console.log('Opponent wants to rematch')
                 this.setState({ opponentRematch: true })
             })
 
@@ -111,16 +103,7 @@ class Game extends Component {
 
     }
 
-    rematch() {
-
-    }
-
-    gameOver() {
-
-    }
-
     tick() {
-        console.log(this.state.countdown)
         this.setState({ countdown: this.state.countdown - 1 }, () => {
             if (this.state.countdown < 0) {
                 clearInterval(this.timer)

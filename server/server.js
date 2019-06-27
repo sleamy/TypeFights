@@ -84,8 +84,6 @@ io.on('connection', (socket) => {
         rooms[id].rematch[playerNumber] = !rooms[id].rematch[playerNumber]
 
         if (rooms[id].rematch[0] && rooms[id].rematch[1]) {
-
-            console.log(data.room.id + ' wants a rematch')
             // Reset room
             rooms[id].health = 0
             rooms[id].ended = false
@@ -111,7 +109,6 @@ io.on('connection', (socket) => {
 
             } else {
                 // Player 2
-                console.log('Player 2 typed a word')
                 rooms[data.roomName].health -= data.wordToType.length
                 if (rooms[data.roomName].health <= -50) {
                     rooms[data.roomName].health = -50
@@ -147,8 +144,6 @@ io.on('connection', (socket) => {
 
                 User.updateStats(winner.email, winnerElo, winner.fights + 1, winner.wins + 1, winner.losses)
                 User.updateStats(loser.email, loserElo, loser.fights + 1, loser.wins, loser.losses + 1)
-
-                console.log(winner)
             }
 
             io.in(data.roomName).emit('updateRoom', { room: rooms[data.roomName] })
