@@ -11,6 +11,8 @@ const Elo = require('./game/elo')
 const Room = require('./game/room')
 const Player = require('./game/player')
 
+const wordsHelper = require('./game/helper')
+
 const app = express()
 const server = http.Server(app)
 const io = socketIO(server)
@@ -73,8 +75,25 @@ io.on('connection', (socket) => {
     })
 
     socket.on('rematch', data => {
-        console.log(data.room.id + ' wants a rematch')
-        socket.to(data.room.id).emit('rematch')
+
+        let id = data.room.id
+        let playerNumber = data.playerNumber
+
+        socket.to(data.room.id).emit('opponentRematch')
+
+        rooms[id].rematch[playerNumber] = !rooms[id].rematch[playerNumber]
+
+        if (rooms[id].rematch[0] && rooms[id].rematch[1]) {
+
+            console.log(data.room.id + ' wants a rematch')
+            // Reset room
+            rooms[id].health = 0
+            rooms[id].ended = false
+            rooms[id].winner = -1
+            rooms[id].words = wordsHelper.getWords(400)
+            rooms[id].rematch = [false, false]
+            io.in(id).emit('rematch', rooms[id] )
+        }
     })
 
     socket.on('wordTyped', data => {
@@ -82,19 +101,19 @@ io.on('connection', (socket) => {
         if (data.typed === data.wordToType) {
 
             if (data.playerId === rooms[data.roomName].players[0].id) {
-                // Player 1 stuff
+                // Player 1
                 rooms[data.roomName].health += data.wordToType.length
-                if (rooms[data.roomName].health > 50) {
+                if (rooms[data.roomName].health >= 50) {
                     rooms[data.roomName].health = 50
                     rooms[data.roomName].ended = true
                     rooms[data.roomName].winner = 0
                 }
 
             } else {
-                // Player 2 stuff
+                // Player 2
                 console.log('Player 2 typed a word')
                 rooms[data.roomName].health -= data.wordToType.length
-                if (rooms[data.roomName].health < -50) {
+                if (rooms[data.roomName].health <= -50) {
                     rooms[data.roomName].health = -50
                     rooms[data.roomName].ended = true
                     rooms[data.roomName].winner = 1
@@ -117,8 +136,17 @@ io.on('connection', (socket) => {
                 let winnerElo = Elo.getNewRating(winner.rating, loser.rating, 1)
                 let loserElo = Elo.getNewRating(loser.rating, winner.rating, 0)
 
-                User.updateStats(winner.email, winnerElo, winner.fights+1, winner.wins+1, winner.losses)
-                User.updateStats(loser.email, loserElo, loser.fights+1, loser.wins, loser.losses+1)
+                // TODO: Show how much rating each player lost
+                if (rooms[data.roomName].winner == 0) {
+                    rooms[data.roomName].players[0].user.rating = winnerElo
+                    rooms[data.roomName].players[1].user.rating = loserElo
+                } else {                    
+                    rooms[data.roomName].players[0].user.rating = loserElo
+                    rooms[data.roomName].players[1].user.rating = winnerElo
+                }   
+
+                User.updateStats(winner.email, winnerElo, winner.fights + 1, winner.wins + 1, winner.losses)
+                User.updateStats(loser.email, loserElo, loser.fights + 1, loser.wins, loser.losses + 1)
 
                 console.log(winner)
             }

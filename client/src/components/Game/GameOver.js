@@ -1,10 +1,11 @@
-import React from 'react'
+import React from 'react';
 
 function GameOver(props) {
 
     return (
         <div>
-            {props.players[props.winner].user.username} wins
+            <div>{props.players[props.winner].user.username} wins</div>
+            <div>{props.rematch && "Your opponent wants a rematch"}</div>
             <button onClick={props.handleRematch}>Rematch</button>
         </div>
     )

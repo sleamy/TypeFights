@@ -31,7 +31,8 @@ class Game extends Component {
             player: {},
             opponent: null,
             searching: true,
-            countdown: 0
+            countdown: 0,
+            opponentRematch: false
         }
     }
 
@@ -44,35 +45,73 @@ class Game extends Component {
             this.state.socket.on('allConnected', (data) => {
                 console.log('All players connected to room')
                 console.log(data.room)
-                this.setState({ room: data.room, words: data.room.words, currentWord: data.room.words[0], searching: false }, () => {
+                this.setState({
+                    room: data.room,
+                    words: data.room.words,
+                    currentWord: data.room.words[0],
+                    searching: false,
+                }, () => {
                     if (this.state.socket.id === data.room.players[0].id) {
                         console.log(data.room.players[0])
-                        this.setState({ playerNumber: 0, opponent: data.room.players[1].user, player: data.room.players[0].user})
-                    } else if(this.state.socket.id === data.room.players[1].id) {
+                        this.setState({ playerNumber: 0, opponent: data.room.players[1].user, player: data.room.players[0].user })
+                    } else if (this.state.socket.id === data.room.players[1].id) {
                         console.log(data.room.players[1])
                         this.setState({ playerNumber: 1, opponent: data.room.players[0].user, player: data.room.players[1].user })
                     }
-                    
+
                     this.timer = setInterval(
                         () => this.tick(),
                         1000
-                      );
-                    
+                    );
+
                 })
             })
 
             this.state.socket.on('updateRoom', data => {
                 this.setState({ room: data.room }, () => {
-                    if(data.room.ended) {
+                    if (data.room.ended) {
                         this.gameOver()
                     }
                 })
             })
 
-            this.state.socket.on('rematch', data => {
+            this.state.socket.on('opponentRematch', data => {
                 console.log('Opponent wants to rematch')
+                this.setState({ opponentRematch: true })
+            })
+
+            this.state.socket.on('rematch', room => {
+                let playerNum, oppNum;
+                if(this.state.playerNumber == 0) {
+                    playerNum = 0; oppNum = 1;
+                } else {
+                    playerNum = 1; oppNum = 0;
+                }
+                this.setState({
+                    room: room,
+                    words: room.words,
+                    currentWord: room.words[0],
+                    searching: false,
+                    wordsTyped: 0,
+                    wordsCorrect: [],
+                    wordsHidden: 0,
+                    input: '',
+                    countdown: 1,
+                    opponentRematch: false,
+                    player: room.players[playerNum].user,
+                    opponent: room.players[oppNum].user
+                })
+
+                this.timer = setInterval(
+                    () => this.tick(),
+                    1000
+                );
             })
         })
+
+    }
+
+    rematch() {
 
     }
 
@@ -82,8 +121,8 @@ class Game extends Component {
 
     tick() {
         console.log(this.state.countdown)
-        this.setState({countdown: this.state.countdown - 1}, () => {
-            if(this.state.countdown < 0) {
+        this.setState({ countdown: this.state.countdown - 1 }, () => {
+            if (this.state.countdown < 0) {
                 clearInterval(this.timer)
                 this.input.current.focus()
             }
@@ -101,7 +140,7 @@ class Game extends Component {
 
     handleRematch(e) {
         e.preventDefault();
-        this.state.socket.emit('rematch', {room: this.state.room})
+        this.state.socket.emit('rematch', { room: this.state.room, playerNumber: this.state.playerNumber })
     }
 
     submitTyped(word) {
@@ -173,7 +212,7 @@ class Game extends Component {
         if (this.state.searching) {
             return (<FindingOpponent searching={this.state.searching} />)
         } else if (this.state.room.ended) {
-            return (<GameOver players={this.state.room.players} winner={this.state.room.winner} handleRematch={this.handleRematch.bind(this)} />)
+            return (<GameOver players={this.state.room.players} winner={this.state.room.winner} rematch={this.state.opponentRematch} handleRematch={this.handleRematch.bind(this)} />)
         } else {
             return (
                 <div className="container">

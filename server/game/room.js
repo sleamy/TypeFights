@@ -1,5 +1,4 @@
-
-const wordsList = require('./words')
+const wordsHelper = require('./helper')
 
 class Room {
 
@@ -11,15 +10,11 @@ class Room {
         this.ended = false;
         this.winner = -1;
         this.words = this.initWords();
-        this.countdown = 5;
+        this.rematch = [false, false]
     }
 
     initWords() {
-        let words = [];
-        for (let i = 0; i < 400; i++) {            
-            words.push(wordsList[Math.round(Math.random() * wordsList.length)]);
-        }
-        return words
+        return wordsHelper.getWords(400)
     }
 
 }
