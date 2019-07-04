@@ -1,0 +1,8 @@
+#leaderboard {
+    width: 80%;
+    margin: 0 auto;
+}
+
+table, th {
+    border: 1px solid black
+}

@@ -19,6 +19,16 @@ router.get('/', (req, res) => {
         })
 })
 
+router.get('/leaderboard', (req, res) => {
+    knex('fighter')
+        .select('*')
+        .where('fights', '>', 0)
+        .limit(10)
+        .then(users => {
+            res.json(users)
+        })
+})
+
 router.post('/register', (req, res) => {
     const { errors, isValid } = validateRegisterInput(req.body)
 
