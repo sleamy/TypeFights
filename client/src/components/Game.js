@@ -74,7 +74,7 @@ class Game extends Component {
 
             this.state.socket.on('rematch', room => {
                 let playerNum, oppNum;
-                if(this.state.playerNumber == 0) {
+                if(this.state.playerNumber === 0) {
                     playerNum = 0; oppNum = 1;
                 } else {
                     playerNum = 1; oppNum = 0;

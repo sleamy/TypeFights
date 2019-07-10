@@ -1,6 +1,7 @@
 const knex = require('./knex')
 
 exports.updateStats = function(email, newRating, fights, wins, losses) {
+
     knex('fighter')
         .where({email: email})
         .update({
@@ -9,7 +10,7 @@ exports.updateStats = function(email, newRating, fights, wins, losses) {
             wins: wins,
             losses: losses
         })
-        .returning('*')
+        .then(fighter => {})
 }
 
 exports.getUserStats = function(email, cb) {
