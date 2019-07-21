@@ -154,10 +154,8 @@ class Game extends Component {
                 } else {
                     this.setState({ wordsHidden: this.state.wordsTyped })
                 }
-
             }
         })
-
     }
 
     render() {
