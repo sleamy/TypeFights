@@ -23,6 +23,7 @@ router.get('/leaderboard', (req, res) => {
     knex('fighter')
         .select('*')
         .where('fights', '>', 0)
+        .orderBy('rating', 'desc')
         .limit(10)
         .then(users => {
             res.json(users)
