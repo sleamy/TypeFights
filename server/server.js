@@ -100,7 +100,8 @@ io.on('connection', (socket) => {
 
             if (data.playerId === rooms[data.roomName].players[0].id) {
                 // Player 1
-                rooms[data.roomName].health += data.wordToType.length
+                //rooms[data.roomName].health += data.wordToType.length TODO: CHANGE THIS BACK
+                rooms[data.roomName].health += 50
                 if (rooms[data.roomName].health >= 50) {
                     rooms[data.roomName].health = 50
                     rooms[data.roomName].ended = true
@@ -109,7 +110,8 @@ io.on('connection', (socket) => {
 
             } else {
                 // Player 2
-                rooms[data.roomName].health -= data.wordToType.length
+                //rooms[data.roomName].health -= data.wordToType.length TODO: CHANGE THIS BACK
+                rooms[data.roomName].health -= 50
                 if (rooms[data.roomName].health <= -50) {
                     rooms[data.roomName].health = -50
                     rooms[data.roomName].ended = true
@@ -135,11 +137,15 @@ io.on('connection', (socket) => {
 
                 // TODO: Show how much rating each player lost
                 if (rooms[data.roomName].winner == 0) {
+                    rooms[data.roomName].players[0].recentElo = winnerElo - rooms[data.roomName].players[0].user.rating;
+                    rooms[data.roomName].players[1].recentElo = loserElo - rooms[data.roomName].players[1].user.rating;
                     rooms[data.roomName].players[0].user.rating = winnerElo
                     rooms[data.roomName].players[1].user.rating = loserElo
-                } else {                    
+                } else {            
+                    rooms[data.roomName].players[1].recentElo = winnerElo - rooms[data.roomName].players[1].user.rating;
+                    rooms[data.roomName].players[0].recentElo = loserElo - rooms[data.roomName].players[0].user.rating;
+                    rooms[data.roomName].players[1].user.rating = winnerElo      
                     rooms[data.roomName].players[0].user.rating = loserElo
-                    rooms[data.roomName].players[1].user.rating = winnerElo
                 }   
 
                 User.updateStats(winner.email, winnerElo, winner.fights + 1, winner.wins + 1, winner.losses)

@@ -13,6 +13,7 @@ import Home from './components/Home'
 import Register from './components/auth/Register'
 import Login from './components/auth/Login'
 import Game from './components/Game'
+import Redirect from './components/Redirect'
 
 // Check for token
 if(localStorage.fighterToken) {
@@ -44,6 +45,7 @@ class App extends Component {
                         <Navbar />
                         <Route exact path="/" component={Home} />
                         <div className="container">
+                            <Route exact path="/redirect" component={Redirect} />
                             <Route exact path="/register" component={Register} />
                             <Route exact path="/login" component={Login} />
                             <Route exact path="/fight" component={Game}/>

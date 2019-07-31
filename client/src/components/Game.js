@@ -50,9 +50,9 @@ class Game extends Component {
                     searching: false,
                 }, () => {
                     if (this.state.socket.id === data.room.players[0].id) {
-                        this.setState({ playerNumber: 0, opponent: data.room.players[1].user, player: data.room.players[0].user })
+                        this.setState({ playerNumber: 0, oppNum: 1, opponent: data.room.players[1].user, player: data.room.players[0].user })
                     } else if (this.state.socket.id === data.room.players[1].id) {
-                        this.setState({ playerNumber: 1, opponent: data.room.players[0].user, player: data.room.players[1].user })
+                        this.setState({ playerNumber: 1, oppNum: 0, opponent: data.room.players[0].user, player: data.room.players[1].user })
                     }
 
                     this.timer = setInterval(
@@ -74,7 +74,7 @@ class Game extends Component {
 
             this.state.socket.on('rematch', room => {
                 let playerNum, oppNum;
-                if(this.state.playerNumber === 0) {
+                if (this.state.playerNumber === 0) {
                     playerNum = 0; oppNum = 1;
                 } else {
                     playerNum = 1; oppNum = 0;
@@ -124,6 +124,12 @@ class Game extends Component {
     handleRematch(e) {
         e.preventDefault();
         this.state.socket.emit('rematch', { room: this.state.room, playerNumber: this.state.playerNumber })
+    }
+
+    handleNewMatch(e) {
+        e.preventDefault();
+        console.log('new match')
+        this.props.history.push('/redirect');
     }
 
     submitTyped(word) {
@@ -193,7 +199,13 @@ class Game extends Component {
         if (this.state.searching) {
             return (<FindingOpponent searching={this.state.searching} />)
         } else if (this.state.room.ended) {
-            return (<GameOver players={this.state.room.players} winner={this.state.room.winner} rematch={this.state.opponentRematch} handleRematch={this.handleRematch.bind(this)} />)
+            return (<GameOver players={this.state.room.players}
+                winner={this.state.room.winner}
+                playerNum={this.state.playerNumber}
+                oppNum={this.state.oppNum}
+                rematch={this.state.opponentRematch}
+                handleRematch={this.handleRematch.bind(this)}
+                handleNewMatch={this.handleNewMatch.bind(this)} />)
         } else {
             return (
                 <div className="container">
