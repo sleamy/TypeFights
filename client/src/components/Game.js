@@ -209,13 +209,11 @@ class Game extends Component {
         } else {
             return (
                 <div className="container">
-                    <span>{this.state.playerNumber} : </span>
-                    <span>{this.state.socket.id}</span>
                     <div className="row justify-content-md-center">
                         <div id="playerInfo" className="col-md-8">
                             <div id="playerOne">
                                 <div className="row justify-content-start">
-                                    <h5 id="playerOneName">{this.state.player.username}</h5>
+                                    <h5 id="playerOneName" className="capitalize">{this.state.player.username}</h5>
                                 </div>
                                 <div className="row justify-content-start">
                                     <img className="icon" alt="trophy" src={trophy} />
@@ -224,7 +222,7 @@ class Game extends Component {
                             </div>
                             <div id="playerTwo">
                                 <div className="row justify-content-end">
-                                    <h5 id="playerTwoName">{this.state.opponent ? this.state.opponent.username : 'Opponent'}</h5>
+                                    <h5 id="playerTwoName" className="capitalize">{this.state.opponent ? this.state.opponent.username : 'Opponent'}</h5>
                                 </div>
                                 <div className="row justify-content-end">
                                     <h6 id="playerTwoRating">{this.state.opponent ? this.state.opponent.rating : 1000}</h6>

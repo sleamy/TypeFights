@@ -24,10 +24,10 @@ class GameOver extends Component {
 
         return (
             <div className="game-over-container">
-                <div className="winner">{players[winner].user.username} wins</div>
+                <div className="winner capitalize">{players[winner].user.username} wins</div>
                 <div className="player-info-container">
                     <div id="player-one-info">
-                        <h5>{players[playerNum].user.username}</h5>
+                        <h5 className="capitalize">{players[playerNum].user.username}</h5>
                         <div className="player-rating-flexbox">
                             <img className="icon" alt="trophy" src={trophy} />
                             <h6>{players[playerNum].user.rating}</h6>
@@ -36,7 +36,7 @@ class GameOver extends Component {
 
                     </div>
                     <div id="player-two-info">
-                        <h5>{players[oppNum].user.username}</h5>
+                        <h5 className="capitalize">{players[oppNum].user.username}</h5>
                         <div className="player-rating-flexbox">
                             {opponentRatingGainEl}
                             <h6>{players[oppNum].user.rating}</h6>

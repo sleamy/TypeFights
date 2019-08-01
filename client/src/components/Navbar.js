@@ -19,11 +19,7 @@ class Navbar extends Component {
         const authLinks = (
           <ul className="navbar-nav ml-auto">
             <li className="nav-item">
-                <a href="" className="nav-link">
-                    <img src={defaultImage}
-                        alt="user profile"
-                        className="rounded-circle"
-                        style={{ width: '25px', marginRight: '5px'}}/>
+                <a href="" className="nav-link capitalize bold">                    
                 {user.username}</a>
             </li>
             <li className="nav-item">
