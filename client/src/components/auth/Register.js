@@ -38,8 +38,8 @@ class Register extends Component {
         e.preventDefault()
 
         const newUser = {
-            username: this.state.username,
-            email: this.state.email,
+            username: this.state.username.toLowerCase(),
+            email: this.state.email.toLowerCase(),
             password: this.state.password,
             password2: this.state.password2
         }

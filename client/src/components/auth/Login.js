@@ -41,7 +41,7 @@ class Login extends Component {
         e.preventDefault()
 
         const userData = {
-            username: this.state.username,
+            username: this.state.username.toLowerCase(),
             password: this.state.password
         }
 
