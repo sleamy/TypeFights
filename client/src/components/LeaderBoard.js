@@ -18,7 +18,6 @@ class LeaderBoard extends Component {
     componentDidMount() {
         axios.get('/api/users/leaderboard')
             .then(res => {
-                console.log(res.data)
                 this.setState({ leaderboard: res.data })
             })
     }

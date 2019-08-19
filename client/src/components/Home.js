@@ -11,10 +11,11 @@ class Home extends Component {
         return (
             <div className="container">
                 <div className="row justify-content-md-center">
-                    <button className="home-button-disabled" disabled>Quick Fight <Icon icon={faLock}></Icon></button>
+                    {/* <button className="home-button-disabled" disabled>Quick Fight <Icon icon={faLock}></Icon></button> */}
+                    <Link className="home-button quick" to="/fight">Quick Fight</Link>
                 </div>
                 <div className="row justify-content-md-center">
-                    <Link className="home-button quick" to="/fight">Ranked Fight</Link>
+                    <Link className="home-button quick" to="/ranked">Ranked Fight</Link>
                 </div>
                 <div className="row justify-content-md-center">
                     <button className="home-button-disabled" disabled>Fight a Friend <Icon icon={faLock}></Icon></button>

@@ -13,6 +13,7 @@ import Home from './components/Home'
 import Register from './components/auth/Register'
 import Login from './components/auth/Login'
 import Game from './components/Game'
+import RankedGame from './components/RankedGame'
 import Redirect from './components/Redirect'
 
 // Check for token
@@ -48,6 +49,7 @@ class App extends Component {
                             <Route exact path="/redirect" component={Redirect} />
                             <Route exact path="/register" component={Register} />
                             <Route exact path="/login" component={Login} />
+                            <Route exact path="/ranked" component={RankedGame}/>
                             <Route exact path="/fight" component={Game}/>
                         </div>
                     </div>

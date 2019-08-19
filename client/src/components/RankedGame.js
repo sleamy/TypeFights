@@ -33,7 +33,7 @@ class Game extends Component {
             searching: true,
             countdown: 0,
             opponentRematch: false,
-            ranked: false
+            ranked: true
         }
     }
 
@@ -41,9 +41,11 @@ class Game extends Component {
 
         // Socket.io
         this.setState({ socket: io('http://localhost:5000') }, () => {
-            this.state.socket.emit('playerConnected', this.props.auth.user)
+            this.state.socket.emit('playerConnected_ranked', this.props.auth.user)
 
             this.state.socket.on('allConnected', (data) => {
+
+                console.log('All Connected')
                 this.setState({
                     room: data.room,
                     words: data.room.words,
@@ -64,7 +66,7 @@ class Game extends Component {
                 })
             })
 
-            this.state.socket.on('updateRoom', data => {
+            this.state.socket.on('updateRoom_ranked', data => {
                 this.setState({ room: data.room }, () => {
                 })
             })
@@ -73,7 +75,7 @@ class Game extends Component {
                 this.setState({ opponentRematch: true })
             })
 
-            this.state.socket.on('rematch', room => {
+            this.state.socket.on('rematch_ranked', room => {
                 let playerNum, oppNum;
                 if (this.state.playerNumber === 0) {
                     playerNum = 0; oppNum = 1;
@@ -124,7 +126,7 @@ class Game extends Component {
 
     handleRematch(e) {
         e.preventDefault();
-        this.state.socket.emit('rematch', { room: this.state.room, playerNumber: this.state.playerNumber })
+        this.state.socket.emit('rematch_ranked', { room: this.state.room, playerNumber: this.state.playerNumber })
     }
 
     handleNewMatch(e) {
@@ -147,7 +149,7 @@ class Game extends Component {
             this.setState({ wordsCorrect: [...this.state.wordsCorrect, 'incorrect'] })
         }
 
-        this.state.socket.emit('wordTyped', ({ playerId: this.state.socket.id, roomName: this.state.room.id, typed: word, wordToType: this.state.currentWord }))
+        this.state.socket.emit('wordTyped_ranked', ({ playerId: this.state.socket.id, roomName: this.state.room.id, typed: word, wordToType: this.state.currentWord }))
 
         this.setState((state, props) => ({
             input: '',
@@ -217,10 +219,18 @@ class Game extends Component {
                                 <div className="row justify-content-start">
                                     <h5 id="playerOneName" className="capitalize">{this.state.player.username}</h5>
                                 </div>
+                                <div className="row justify-content-start">
+                                    <img className="icon" alt="trophy" src={trophy} />
+                                    <h6 id="playerOneRating">{this.state.player.rating}</h6>
+                                </div>
                             </div>
                             <div id="playerTwo">
                                 <div className="row justify-content-end">
                                     <h5 id="playerTwoName" className="capitalize">{this.state.opponent ? this.state.opponent.username : 'Opponent'}</h5>
+                                </div>
+                                <div className="row justify-content-end">
+                                    <h6 id="playerTwoRating">{this.state.opponent ? this.state.opponent.rating : 1000}</h6>
+                                    <img className="icon" alt="trophy" src={trophy} />
                                 </div>
                             </div>
                         </div>

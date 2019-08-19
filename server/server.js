@@ -36,11 +36,14 @@ app.get('/', (req, res) => {
 server.listen(PORT, () => console.log(`Server running on port ${PORT}`))
 
 let rooms = {}
-let queue = []
+let rRooms = {}
 let roomCount = 1
+let rRoomCount = 1
 
 let room = new Room('Genesis')
 rooms[room.id] = room
+let rRoom = new Room('R_Genesis')
+rRooms[rRoom.id] = rRoom;
 
 
 io.on('connection', (socket) => {
@@ -74,6 +77,35 @@ io.on('connection', (socket) => {
         })
     })
 
+    socket.on('playerConnected_ranked', (user) => {
+
+        let connectedUser = user;
+
+        console.log(connectedUser)
+
+        User.getUserStats(user.email, (stats) => {
+
+            connectedUser.rating = stats.rating
+            connectedUser.fights = stats.fights
+            connectedUser.wins = stats.wins
+            connectedUser.lossess = stats.losses
+
+            let player = new Player(socket.id, rRoom.id, connectedUser)
+
+            socket.join(rRoom.id)
+            rRoom.players.push(player)
+
+            if (rRoom.players.length == 2) {
+
+                io.in(rRoom.id).emit('allConnected', { room: rRooms[rRoom.id], players: rRooms[rRoom.id].players })
+
+                rRoom = new Room('Room_' + rRoomCount++);
+                rRooms[rRoom.id] = rRoom
+            }
+
+        })
+    })
+
     socket.on('rematch', data => {
 
         let id = data.room.id
@@ -90,7 +122,27 @@ io.on('connection', (socket) => {
             rooms[id].winner = -1
             rooms[id].words = wordsHelper.getWords(400)
             rooms[id].rematch = [false, false]
-            io.in(id).emit('rematch', rooms[id] )
+            io.in(id).emit('rematch', rooms[id])
+        }
+    })
+
+    socket.on('rematch_ranked', data => {
+
+        let id = data.room.id
+        let playerNumber = data.playerNumber
+
+        socket.to(data.room.id).emit('opponentRematch')
+
+        rRooms[id].rematch[playerNumber] = !rRooms[id].rematch[playerNumber]
+
+        if (rRooms[id].rematch[0] && rRooms[id].rematch[1]) {
+            // Reset room
+            rRooms[id].health = 0
+            rRooms[id].ended = false
+            rRooms[id].winner = -1
+            rRooms[id].words = wordsHelper.getWords(400)
+            rRooms[id].rematch = [false, false]
+            io.in(id).emit('rematch', rRooms[id])
         }
     })
 
@@ -121,38 +173,78 @@ io.on('connection', (socket) => {
 
             // Game has ended
             if (rooms[data.roomName].ended) {
-                let winner, loser;
-
-                if (rooms[data.roomName].winner == 0) {
-                    winner = rooms[data.roomName].players[0].user
-                    loser = rooms[data.roomName].players[1].user
-                } else {
-                    winner = rooms[data.roomName].players[1].user
-                    loser = rooms[data.roomName].players[0].user
-                }
-
-                // TODO: Update elo
-                let winnerElo = Elo.getNewRating(winner.rating, loser.rating, 1)
-                let loserElo = Elo.getNewRating(loser.rating, winner.rating, 0)
-
-                // TODO: Show how much rating each player lost
-                if (rooms[data.roomName].winner == 0) {
-                    rooms[data.roomName].players[0].recentElo = winnerElo - rooms[data.roomName].players[0].user.rating;
-                    rooms[data.roomName].players[1].recentElo = loserElo - rooms[data.roomName].players[1].user.rating;
-                    rooms[data.roomName].players[0].user.rating = winnerElo
-                    rooms[data.roomName].players[1].user.rating = loserElo
-                } else {            
-                    rooms[data.roomName].players[1].recentElo = winnerElo - rooms[data.roomName].players[1].user.rating;
-                    rooms[data.roomName].players[0].recentElo = loserElo - rooms[data.roomName].players[0].user.rating;
-                    rooms[data.roomName].players[1].user.rating = winnerElo      
-                    rooms[data.roomName].players[0].user.rating = loserElo
-                }   
-
-                User.updateStats(winner.email, winnerElo, winner.fights + 1, winner.wins + 1, winner.losses)
-                User.updateStats(loser.email, loserElo, loser.fights + 1, loser.wins, loser.losses + 1)
+                
             }
 
             io.in(data.roomName).emit('updateRoom', { room: rooms[data.roomName] })
+        }
+    })
+
+    socket.on('wordTyped_ranked', data => {
+        
+        console.log('Word typed')
+        console.log(data)
+
+        if (data.typed === data.wordToType) {
+
+            if (data.playerId === rRooms[data.roomName].players[0].id) {
+                // Player 1
+                //rRooms[data.roomName].health += data.wordToType.length TODO: CHANGE THIS BACK
+                rRooms[data.roomName].health += 50
+                if (rRooms[data.roomName].health >= 50) {
+                    rRooms[data.roomName].health = 50
+                    rRooms[data.roomName].ended = true
+                    rRooms[data.roomName].winner = 0
+                }
+
+            } else {
+                // Player 2
+                //rRooms[data.roomName].health -= data.wordToType.length TODO: CHANGE THIS BACK
+                rRooms[data.roomName].health -= 50
+                if (rRooms[data.roomName].health <= -50) {
+                    rRooms[data.roomName].health = -50
+                    rRooms[data.roomName].ended = true
+                    rRooms[data.roomName].winner = 1
+                }
+            }
+
+            // Game has ended
+            if (rRooms[data.roomName].ended) {
+                let winner, loser;
+
+                if (rRooms[data.roomName].winner == 0) {
+                    winner = rRooms[data.roomName].players[0].user
+                    loser = rRooms[data.roomName].players[1].user
+                } else {
+                    winner = rRooms[data.roomName].players[1].user
+                    loser = rRooms[data.roomName].players[0].user
+                }
+
+                if (rRooms[data.roomName].ranked = true) {
+
+                    // TODO: Update elo
+                    let winnerElo = Elo.getNewRating(winner.rating, loser.rating, 1)
+                    let loserElo = Elo.getNewRating(loser.rating, winner.rating, 0)
+
+                    // TODO: Show how much rating each player lost
+                    if (rRooms[data.roomName].winner == 0) {
+                        rRooms[data.roomName].players[0].recentElo = winnerElo - rRooms[data.roomName].players[0].user.rating;
+                        rRooms[data.roomName].players[1].recentElo = loserElo - rRooms[data.roomName].players[1].user.rating;
+                        rRooms[data.roomName].players[0].user.rating = winnerElo
+                        rRooms[data.roomName].players[1].user.rating = loserElo
+                    } else {
+                        rRooms[data.roomName].players[1].recentElo = winnerElo - rRooms[data.roomName].players[1].user.rating;
+                        rRooms[data.roomName].players[0].recentElo = loserElo - rRooms[data.roomName].players[0].user.rating;
+                        rRooms[data.roomName].players[1].user.rating = winnerElo
+                        rRooms[data.roomName].players[0].user.rating = loserElo
+                    }
+
+                    User.updateStats(winner.email, winnerElo, winner.fights + 1, winner.wins + 1, winner.losses)
+                    User.updateStats(loser.email, loserElo, loser.fights + 1, loser.wins, loser.losses + 1)
+                }
+            }
+
+            io.in(data.roomName).emit('updateRoom_ranked', { room: rRooms[data.roomName] })
         }
     })
 
