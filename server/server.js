@@ -10,6 +10,7 @@ const users = require('./routes/api/users')
 const Elo = require('./game/elo')
 const Room = require('./game/room')
 const Player = require('./game/player')
+const Guest = require('./game/guest')
 
 const wordsHelper = require('./game/helper')
 
@@ -50,31 +51,49 @@ io.on('connection', (socket) => {
 
     console.log('User connected: ' + socket.id)
 
-    socket.on('playerConnected', (user) => {
+    socket.on('playerConnected', (user) => { 
 
-        let connectedUser = user;
-
-        User.getUserStats(user.email, (stats) => {
-
-            connectedUser.rating = stats.rating
-            connectedUser.fights = stats.fights
-            connectedUser.wins = stats.wins
-            connectedUser.lossess = stats.losses
-
-            let player = new Player(socket.id, room.id, connectedUser)
+        if (user === 'Guest') {
+            
+            let player = new Player(socket.id, room.id, Guest)
 
             socket.join(room.id)
             room.players.push(player)
 
-            if (room.players.length == 2) {
+                if (room.players.length == 2) {
 
-                io.in(room.id).emit('allConnected', { room: rooms[room.id], players: rooms[room.id].players })
+                    io.in(room.id).emit('allConnected', { room: rooms[room.id], players: rooms[room.id].players })
 
-                room = new Room('Room_' + roomCount++);
-                rooms[room.id] = room
-            }
+                    room = new Room('Room_' + roomCount++);
+                    rooms[room.id] = room
+                }
 
-        })
+        } else {
+            let connectedUser = user;
+
+            User.getUserStats(user.email, (stats) => {
+
+                connectedUser.rating = stats.rating
+                connectedUser.fights = stats.fights
+                connectedUser.wins = stats.wins
+                connectedUser.lossess = stats.losses
+
+                let player = new Player(socket.id, room.id, connectedUser)
+
+                socket.join(room.id)
+                room.players.push(player)
+
+                if (room.players.length == 2) {
+
+                    io.in(room.id).emit('allConnected', { room: rooms[room.id], players: rooms[room.id].players })
+
+                    room = new Room('Room_' + roomCount++);
+                    rooms[room.id] = room
+                }
+
+            })
+        }
+         
     })
 
     socket.on('playerConnected_ranked', (user) => {
@@ -173,7 +192,7 @@ io.on('connection', (socket) => {
 
             // Game has ended
             if (rooms[data.roomName].ended) {
-                
+
             }
 
             io.in(data.roomName).emit('updateRoom', { room: rooms[data.roomName] })
@@ -181,7 +200,7 @@ io.on('connection', (socket) => {
     })
 
     socket.on('wordTyped_ranked', data => {
-        
+
         console.log('Word typed')
         console.log(data)
 

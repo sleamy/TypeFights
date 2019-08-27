@@ -41,7 +41,12 @@ class Game extends Component {
 
         // Socket.io
         this.setState({ socket: io('http://localhost:5000') }, () => {
-            this.state.socket.emit('playerConnected', this.props.auth.user)
+            if(this.props.auth.isAuthenticated) {
+                this.state.socket.emit('playerConnected', this.props.auth.user)
+            } else {
+                this.state.socket.emit('playerConnected', 'Guest')
+            }
+            
 
             this.state.socket.on('allConnected', (data) => {
                 this.setState({
