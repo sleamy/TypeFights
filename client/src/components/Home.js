@@ -42,7 +42,7 @@ class Home extends Component {
                         <Link className="home-button quick" to="/fight">Quick Fight</Link>
                     </div>
                     <div className="row justify-content-md-center">
-                    <button className="home-button-disabled" disabled>Ranekd Fight <Icon icon={faLock}></Icon></button>
+                    <button className="home-button-disabled" disabled>Ranked Fight <Icon icon={faLock}></Icon></button>
                     </div>
                     <div className="row justify-content-md-center">
                         <button className="home-button-disabled" disabled>Fight a Friend <Icon icon={faLock}></Icon></button>
