@@ -2,7 +2,6 @@ import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import PropTypes from 'prop-types'
 import io from 'socket.io-client'
-import trophy from '../images/trophy.png'
 import FindingOpponent from './Game/FindingOpponent'
 import Health from './Game/Health'
 import GameOver from './Game/GameOver'
@@ -171,9 +170,6 @@ class Game extends Component {
     }
 
     render() {
-
-        const { user } = this.props.auth;
-
 
         // TODO: Create word elements
         const wordEls = []

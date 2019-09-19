@@ -5,7 +5,6 @@ import PropTypes from 'prop-types'
 import { Link } from 'react-router-dom'
 import { FontAwesomeIcon as Icon } from '@fortawesome/react-fontawesome'
 import { faLock } from '@fortawesome/free-solid-svg-icons'
-import axios from 'axios'
 
 class Home extends Component {
 

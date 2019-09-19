@@ -169,9 +169,6 @@ class Game extends Component {
 
     render() {
 
-        const { user } = this.props.auth;
-
-
         // TODO: Create word elements
         const wordEls = []
 

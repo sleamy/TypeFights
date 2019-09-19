@@ -5,7 +5,7 @@ function FindingOpponent(props) {
     return (
         <div className="container">
             <div className="row justify-content-md-center">
-                <img src={loading}></img>
+                <img alt="loading spinner" src={loading}></img>
             </div>
             <div className="row justify-content-md-center">
                 <h1>Finding Opponent</h1>
