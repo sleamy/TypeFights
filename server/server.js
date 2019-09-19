@@ -171,8 +171,8 @@ io.on('connection', (socket) => {
 
             if (data.playerId === rooms[data.roomName].players[0].id) {
                 // Player 1
-                //rooms[data.roomName].health += data.wordToType.length TODO: CHANGE THIS BACK
-                rooms[data.roomName].health += 50
+                rooms[data.roomName].health += data.wordToType.length
+                //rooms[data.roomName].health += 50
                 if (rooms[data.roomName].health >= 50) {
                     rooms[data.roomName].health = 50
                     rooms[data.roomName].ended = true
@@ -181,8 +181,8 @@ io.on('connection', (socket) => {
 
             } else {
                 // Player 2
-                //rooms[data.roomName].health -= data.wordToType.length TODO: CHANGE THIS BACK
-                rooms[data.roomName].health -= 50
+                rooms[data.roomName].health -= data.wordToType.length
+                //rooms[data.roomName].health -= 50
                 if (rooms[data.roomName].health <= -50) {
                     rooms[data.roomName].health = -50
                     rooms[data.roomName].ended = true
@@ -208,8 +208,8 @@ io.on('connection', (socket) => {
 
             if (data.playerId === rRooms[data.roomName].players[0].id) {
                 // Player 1
-                //rRooms[data.roomName].health += data.wordToType.length TODO: CHANGE THIS BACK
-                rRooms[data.roomName].health += 50
+                rRooms[data.roomName].health += data.wordToType.length
+                //rRooms[data.roomName].health += 50
                 if (rRooms[data.roomName].health >= 50) {
                     rRooms[data.roomName].health = 50
                     rRooms[data.roomName].ended = true
@@ -218,8 +218,8 @@ io.on('connection', (socket) => {
 
             } else {
                 // Player 2
-                //rRooms[data.roomName].health -= data.wordToType.length TODO: CHANGE THIS BACK
-                rRooms[data.roomName].health -= 50
+                rRooms[data.roomName].health -= data.wordToType.length
+                //rRooms[data.roomName].health -= 50
                 if (rRooms[data.roomName].health <= -50) {
                     rRooms[data.roomName].health = -50
                     rRooms[data.roomName].ended = true
