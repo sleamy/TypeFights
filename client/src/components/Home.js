@@ -9,7 +9,6 @@ import { faLock } from '@fortawesome/free-solid-svg-icons'
 class Home extends Component {
 
     componentDidMount() {
-        console.log(this.props.auth)
     }
 
     render() {

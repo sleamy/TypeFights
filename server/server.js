@@ -49,8 +49,6 @@ rRooms[rRoom.id] = rRoom;
 
 io.on('connection', (socket) => {
 
-    console.log('User connected: ' + socket.id)
-
     socket.on('playerConnected', (user) => { 
 
         if (user === 'Guest') {
@@ -99,8 +97,6 @@ io.on('connection', (socket) => {
     socket.on('playerConnected_ranked', (user) => {
 
         let connectedUser = user;
-
-        console.log(connectedUser)
 
         User.getUserStats(user.email, (stats) => {
 
@@ -201,9 +197,6 @@ io.on('connection', (socket) => {
 
     socket.on('wordTyped_ranked', data => {
 
-        console.log('Word typed')
-        console.log(data)
-
         if (data.typed === data.wordToType) {
 
             if (data.playerId === rRooms[data.roomName].players[0].id) {
@@ -267,5 +260,7 @@ io.on('connection', (socket) => {
         }
     })
 
-    socket.on('disconnect', () => console.log('User disconnected'))
+    socket.on('disconnect', () => {
+        // Nothing yet
+    })
 })

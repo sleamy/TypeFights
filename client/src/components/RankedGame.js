@@ -45,7 +45,6 @@ class Game extends Component {
 
             this.state.socket.on('allConnected', (data) => {
 
-                console.log('All Connected')
                 this.setState({
                     room: data.room,
                     words: data.room.words,
@@ -131,7 +130,6 @@ class Game extends Component {
 
     handleNewMatch(e) {
         e.preventDefault();
-        console.log('new match')
         this.props.history.push('/redirect');
     }
 

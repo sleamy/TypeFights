@@ -133,7 +133,6 @@ class Game extends Component {
 
     handleNewMatch(e) {
         e.preventDefault();
-        console.log('new match')
         this.props.history.push('/redirect');
     }
 
