@@ -1,9 +1,12 @@
+require('dotenv').config()
+
 const express = require('express')
 const bodyParser = require('body-parser')
 const passport = require('passport')
 const http = require('http')
 const socketIO = require('socket.io')
 const User = require('./db/user')
+const path = require('path')
 
 const users = require('./routes/api/users')
 
@@ -30,9 +33,13 @@ require('./config/passport')(passport);
 
 app.use('/api/users', users)
 
-app.get('/', (req, res) => {
-    res.send('Hello')
-})
+// Serve static assets if in production
+if(process.env.NODE_ENV === 'production') {
+    app.use(express.static('client/build'))
+    app.get('*', (req, res) => {
+        res.sendFile(path.resolve(__dirname, 'client', 'build', 'index.html'))
+    })
+}
 
 server.listen(PORT, () => console.log(`Server running on port ${PORT}`))
 
